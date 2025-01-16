@@ -1,0 +1,54 @@
+use ch12_minigrep::run;
+use ch12_minigrep::Config;
+use std::env; // reading values from commandline via env::args
+use std::process; // used for exit codes // Config struct an associated functions from lib.rs
+
+/*
+note:
+IGNORE_CASE=1 cargo run <query> <filename> ... to ignore case
+cargo run <query> <filename> ... to not ignore case
+*/
+fn main() {
+    // args returns an iterator of arguments
+    let args = env::args();
+
+    // we pass the above iterator into the Config constructor, new()
+    let config = match Config::new(args) {
+        Ok(c) => c,
+        Err(e) => {
+            // print to standard error stream
+            eprintln!("Problem parsing arguments: {}", e);
+            process::exit(1);
+        }
+    };
+
+    /*
+    the above can be written using unwrap_or_else.
+    using _config2 to silence warnings
+
+
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("Problem parsing arguments: {}", err);
+        process::exit(1);
+    });
+    */
+
+    println!("searching for: {}", config.query);
+    println!("in the file: {}", config.filename);
+
+    /*
+    we use if let rather than unwrap_or_else.
+
+    the run function doesn't returna value that we wish to unwrap.
+    because run returns () in the success case, we only care about the error.
+
+    so we are not using unwrap_or_else to return the unwrapped value which would be ().
+
+
+    */
+    if let Err(e) = run(config) {
+        // print to standard error stream
+        eprintln!("application error: {e}");
+        process::exit(1);
+    }
+}
