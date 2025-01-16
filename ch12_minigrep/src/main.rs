@@ -2,6 +2,12 @@ use ch12_minigrep::run;
 use ch12_minigrep::Config;
 use std::env; // reading values from commandline via env::args
 use std::process; // used for exit codes // Config struct an associated functions from lib.rs
+
+/*
+note:
+IGNORE_CASE=1 cargo run <query> <filename> ... to ignore case
+cargo run <query> <filename> ... to not ignore case
+*/
 fn main() {
     // args returns an iterator of arguments
     // collect turns that into a collection, Vec<String> in this case
@@ -10,7 +16,8 @@ fn main() {
     let config = match Config::new(&args) {
         Ok(c) => c,
         Err(e) => {
-            println!("Problem parsing arguments: {}", e);
+            // print to standard error stream
+            eprintln!("Problem parsing arguments: {}", e);
             process::exit(1);
         }
     };
@@ -36,9 +43,12 @@ fn main() {
     because run returns () in the success case, we only care about the error.
 
     so we are not using unwrap_or_else to return the unwrapped value which would be ().
+
+
     */
     if let Err(e) = run(config) {
-        println!("application error: {e}");
+        // print to standard error stream
+        eprintln!("application error: {e}");
         process::exit(1);
     }
 }
